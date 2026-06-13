@@ -1,0 +1,8 @@
+services:
+  api:
+    image: abhishek8899/basic-node-server-for-jenkins-deployment:latest
+    ports:
+      - "3000:3000"
+    env_file: 
+      - .env
+    restart: unless-stopped
