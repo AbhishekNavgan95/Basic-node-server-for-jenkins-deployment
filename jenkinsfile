@@ -71,13 +71,11 @@ pipeline {
                 sshagent(['ec2-ssh-key']) {
 
                     sh """
-                        ssh -o StrictHostKeyChecking=no \
-                        ${SERVER_USER}@${SERVER_IP} '
-                            cd /opt/myapp &&
+                        echo "$DOCKER_PASS" | docker login \
+                        -u "$DOCKER_USER" \
+                        --password-stdin
 
-                            docker compose pull &&
-                            docker compose up -d
-                        '
+                        docker push ${IMAGE_NAME}:latest
                     """
                 }
             }
