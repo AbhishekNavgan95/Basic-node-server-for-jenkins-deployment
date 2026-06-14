@@ -1,9 +1,10 @@
 pipeline {
     agent any
 
+    ```
     environment {
         IMAGE_NAME = "abhishek8899/basic-node-server-for-jenkins-deployment"
-        SERVER_IP = "13.200.232.186"
+        SERVER_IP = "13.232.152.103"
         SERVER_USER = "ubuntu"
     }
 
@@ -20,12 +21,6 @@ pipeline {
                 sh 'npm ci'
             }
         }
-
-        // stage('Lint') {
-        //     steps {
-        //         sh 'npm run lint'
-        //     }
-        // }
 
         stage('Test') {
             steps {
@@ -54,22 +49,6 @@ pipeline {
                     )
                 ]) {
 
-                    sh '''
-                        echo "$DOCKER_PASS" | docker login \
-                        -u "$DOCKER_USER" \
-                        --password-stdin
-
-                        docker push '${IMAGE_NAME}:latest'
-                    '''
-                }
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-
-                sshagent(['ec2-ssh-key']) {
-
                     sh """
                         echo "$DOCKER_PASS" | docker login \
                         -u "$DOCKER_USER" \
@@ -81,9 +60,26 @@ pipeline {
             }
         }
 
-        stage('Health Check') {
+        stage('Deploy') {
             steps {
 
+                sshagent(['ec2-ssh-key']) {
+
+                    sh """
+                        ssh -o StrictHostKeyChecking=no \
+                        ${SERVER_USER}@${SERVER_IP} '
+                            cd /opt/myapp &&
+
+                            docker compose pull &&
+                            docker compose up -d
+                        '
+                    """
+                }
+            }
+        }
+
+        stage('Health Check') {
+            steps {
                 sh """
                     curl --fail \
                     http://${SERVER_IP}:3000/health
@@ -106,4 +102,6 @@ pipeline {
             cleanWs()
         }
     }
+    ```
+
 }
