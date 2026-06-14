@@ -65,11 +65,11 @@ after(() => {
 });
 
 describe('Server', () => {
-    it('GET / returns Hello World v2', async () => {
+    it('GET / returns Hello World', async () => {
         const res = await get(`http://127.0.0.1:${port}/`);
 
         assert.equal(res.status, 200);
-        assert.equal(res.body, 'Hello World v2');
+        assert.equal(res.body, 'Hello World');
     });
 
     it('GET /health returns ok status', async () => {
